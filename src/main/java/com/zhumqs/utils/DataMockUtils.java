@@ -17,9 +17,9 @@ import java.util.List;
 @Slf4j
 public class DataMockUtils {
 
-    public static List<MobileUser> mockUserInfo() {
+    public static List<MobileUser> mockUserInfo(int userNumber) {
         List<MobileUser> users = new ArrayList<MobileUser>();
-        for (int i = 1; i <= ExperimentConstants.USER_NUMBER; i++) {
+        for (int i = 1; i <= userNumber; i++) {
             MobileUser user = new MobileUser();
             user.setUserId(i);
             user.setInstitute(RandomUtils.getRandomInterval(1, 30));
@@ -38,8 +38,7 @@ public class DataMockUtils {
         return users;
     }
 
-    public static int[][] mockTrustRelationship(double socialWeight) {
-        int userNumber = ExperimentConstants.USER_NUMBER;
+    public static int[][] mockTrustRelationship(double socialWeight, int userNumber) {
         int[][] trustMat = new int[userNumber][userNumber];
         for (int i = 0; i < userNumber; i++) {
             for  (int j = 0; j < userNumber; j++)  {
@@ -49,20 +48,20 @@ public class DataMockUtils {
         return trustMat;
     }
 
-    public static List<Content> mockContents() {
+    public static List<Content> mockContents(int contentNumber) {
         List<Content> contents = new ArrayList<Content>();
-        for (int i = 1; i <= ExperimentConstants.CONTENT_NUMBER; i++) {
+        for (int i = 1; i <= contentNumber; i++) {
             Content content = new Content();
             content.setContentId(i);
-            content.setSize(ExperimentConstants.CONTENT_DEFAULT_SIZE);
+            content.setSize(contentNumber);
             contents.add(content);
         }
         return contents;
     }
 
     public static void main(String[] args) {
-        log.info(JSON.toJSONString(mockUserInfo()));
-        printMatrix(mockTrustRelationship(0.5));
+        log.info(JSON.toJSONString(mockUserInfo(100)));
+        printMatrix(mockTrustRelationship(0.5, 100));
     }
 
     private static void printMatrix(int[][] mat) {

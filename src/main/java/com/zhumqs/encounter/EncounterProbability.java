@@ -1,6 +1,7 @@
 package com.zhumqs.encounter;
 
 
+import com.zhumqs.constants.ExperimentConstants;
 import com.zhumqs.model.MobileUser;
 import com.zhumqs.utils.DataMockUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -122,7 +123,8 @@ public class EncounterProbability {
     }
 
     public static void main(String[] args) {
-        EncounterProbability probability = new EncounterProbability(DataMockUtils.mockUserInfo(), DataMockUtils.mockTrustRelationship(0.5));
+        EncounterProbability probability = new EncounterProbability(DataMockUtils.mockUserInfo(ExperimentConstants.DEFAULT_USER_NUMBER),
+                DataMockUtils.mockTrustRelationship(ExperimentConstants.DEFAULT_SOCIAL_WEIGHT, ExperimentConstants.DEFAULT_USER_NUMBER));
         List<Integer> tie = probability.getSocialTie(1);
         log.info(tie.toString());
         List<Integer> tie1 = probability.getSocialTie(2);

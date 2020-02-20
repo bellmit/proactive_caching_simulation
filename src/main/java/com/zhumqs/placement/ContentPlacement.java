@@ -30,15 +30,17 @@ public class ContentPlacement {
     private double[][] requestProbabilityMat;
     private double[][] expectationMat;
 
-    public ContentPlacement(double weight1, double weight2, double socialWeight) {
+    public ContentPlacement(double weight1, double weight2, double socialWeight, int userNumber, int contentNumber) {
         this.weight1 = weight1;
         this.weight2 = weight2;
         this.socialWeight = socialWeight;
+        this.userNumber = userNumber;
+        this.contentNumber = contentNumber;
         this.cacheMap = new HashMap<Integer, List<Integer>>();
         this.placementMap = new HashMap<Integer, Integer>();
     }
 
-    public Map<Integer, List<Integer>> getCacheStrategy() {
+    private void initCacheStrategy() {
         this.expectationMat = getExpectationMatrix();
         for (int i = 0; i <  contentNumber; i++) {
             double maxExpectation = Double.MIN_VALUE;
@@ -62,21 +64,18 @@ public class ContentPlacement {
                 placementMap.put(i + 1, cacheUserId);
             }
         }
-        return cacheMap;
     }
 
     private double[][] getExpectationMatrix() {
-        List<MobileUser> users = DataMockUtils.mockUserInfo();
-        int[][] trustMat = DataMockUtils.mockTrustRelationship(socialWeight);
+        List<MobileUser> users = DataMockUtils.mockUserInfo(userNumber);
+        int[][] trustMat = DataMockUtils.mockTrustRelationship(socialWeight, userNumber);
         EncounterProbability encounterProbability = new EncounterProbability(users, trustMat);
         this.encounterMat = encounterProbability.getEncounterMatrix(weight1, weight2);
 
-        List<Content> contents = DataMockUtils.mockContents();
+        List<Content> contents = DataMockUtils.mockContents(contentNumber);
         RequestProbability requestProbability = new RequestProbability(users, contents);
         this.requestProbabilityMat = requestProbability.getRequestProbabilityMatrix();
 
-        this.userNumber = users.size();
-        this.contentNumber = contents.size();
         double[][] expectationMat = new double[userNumber][contentNumber];
         for (int i = 0; i < userNumber; i++) {
             for (int j = 0; j < contentNumber; j++) {
@@ -96,7 +95,8 @@ public class ContentPlacement {
      *  如何计算缓存命中率?
      *
       */
-    public double getCacheHitRatio() {
+    double getCacheHitRatio() {
+        initCacheStrategy();
         double d1 = 0.0, d2 = 0.0;
         for (int i = 0; i < userNumber; i++) {
             for (int j = 0; j < contentNumber; j++) {
@@ -116,11 +116,11 @@ public class ContentPlacement {
     }
 
     public static void main(String[] args) {
-        ContentPlacement placement = new ContentPlacement(ExperimentConstants.WEIGHT1,
-                ExperimentConstants.WEIGHT2, ExperimentConstants.SOCIAL_WEIGHT);
-        Map<Integer, List<Integer>> cacheStrategy = placement.getCacheStrategy();
-        log.info(cacheStrategy.toString());
-
+        ContentPlacement placement = new ContentPlacement(ExperimentConstants.DEFAULT_WEIGHT1,
+                ExperimentConstants.DEFAULT_WEIGHT2,
+                ExperimentConstants.DEFAULT_SOCIAL_WEIGHT,
+                ExperimentConstants.DEFAULT_USER_NUMBER,
+                ExperimentConstants.DEFAULT_CONTENT_NUMBER);
         double cacheHitRatio = placement.getCacheHitRatio();
         log.info(String.valueOf(cacheHitRatio));
     }
