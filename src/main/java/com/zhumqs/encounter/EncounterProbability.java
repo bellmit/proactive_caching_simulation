@@ -35,7 +35,7 @@ public class EncounterProbability {
         for (int i = 0; i < userNumber; i++) {
             for (int j = 0; j < userNumber; j++) {
                 if (i == j) {
-                    encounterMat[i][j] = 0;
+                    encounterMat[i][j] = 1;
                 } else {
                     encounterMat[i][j] = weight1 * getSocialRelevance(i + 1, j + 1, weight2)
                             + (1 -  weight1) * getUserSimilarity(i + 1, j + 1);
@@ -83,16 +83,19 @@ public class EncounterProbability {
     }
 
     private double getNumberRelevance(int userId1, int userId2) {
-        int count1 = 0, count2 = 0;
         List<Integer> ties1 = getSocialTie(userId1);
         List<Integer> ties2 = getSocialTie(userId2);
+
+        Set<Integer> friendSet1 = new HashSet<>();
+        Set<Integer> friendSet2 = new HashSet<>();
         for (Integer i : ties1) {
-            count1 += getSocialTie(i).size();
+            friendSet1.addAll(getSocialTie(i));
         }
         for (Integer i : ties2) {
-            count2 += getSocialTie(i).size();
+            friendSet2.addAll(getSocialTie(i));
         }
-        return (ties1.size()*1.0 / count1) + (ties2.size()*1.0 /  count2);
+
+        return ((ties1.size() * 1.0 / friendSet1.size())) * ((ties2.size() * 1.0 / friendSet2.size()));
     }
 
     private double getTieRelevance(int userId1, int userId2) {
@@ -113,7 +116,7 @@ public class EncounterProbability {
 
     private Set<Integer> getIntersection(List<Integer> l1, List<Integer> l2) {
         l1.retainAll(l2);
-        return new HashSet<Integer>(l1);
+        return new HashSet<>(l1);
     }
 
     private Set<Integer> getUnionSet(List<Integer> l1, List<Integer> l2) {
@@ -136,7 +139,8 @@ public class EncounterProbability {
         Set<Integer> intersection = probability.getIntersection(tie, tie1);
         log.info("intersection is {}", intersection);
 
-        double[][] encounterMatrix = probability.getEncounterMatrix(0.5, 0.5);
+        double[][] encounterMatrix = probability.getEncounterMatrix(ExperimentConstants.DEFAULT_WEIGHT1,
+                ExperimentConstants.DEFAULT_WEIGHT2);
         log.info(Arrays.deepToString(encounterMatrix));
     }
 }
